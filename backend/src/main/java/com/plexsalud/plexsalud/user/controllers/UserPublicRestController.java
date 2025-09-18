@@ -26,13 +26,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Tag(name = "Usuarios", description = "Operaciones con usuarios")
 @SecurityRequirement(name = "bearerAuth")
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/public/users")
 @RestController
-public class UserRestController {
+public class UserPublicRestController {
     @Autowired
     private final UserService userService;
 
-    public UserRestController(UserService userService) {
+    public UserPublicRestController(UserService userService) {
         this.userService = userService;
     }
 
