@@ -34,13 +34,13 @@ public class SecurityConfiguration {
         http.csrf(csrf -> csrf.disable()) // ⚠️ Deshabilitar CSRF para APIs REST, pero mantenerlo para formularios
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (registro, login, recursos estáticos)
-                        .requestMatchers("/auth/login-form", "/api/auth/login", "/api/auth/signup",
+                        .requestMatchers("/auth/login-form", "/api/auth/login", "/api/v1/auth/signup",
                                 "/uploads/**", "/swagger-ui/**",
-                                "/v3/api-docs/**", "/css/**", "/js/**", "/favicon.ico")
+                                "/v3/api-docs/**", "/css/**", "/js/**", "/favicon.ico", "/api/v1/users/test/**")
                         .permitAll()
 
                         // Endpoints REST deben usar JWT/Bearer
-                        .requestMatchers("/api/v1/**").authenticated()
+                        // .requestMatchers("/api/v1/**").authenticated()
 
                         // requieren login por sesión/cookie
                         .requestMatchers("/api/v1/**").authenticated())
@@ -54,7 +54,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(allowedOrigin));
+        configuration.setAllowedOrigins(List.of(allowedOrigin,"http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
