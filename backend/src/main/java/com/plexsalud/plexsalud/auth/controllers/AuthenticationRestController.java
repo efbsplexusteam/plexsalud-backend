@@ -1,6 +1,7 @@
 package com.plexsalud.plexsalud.auth.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ public class AuthenticationRestController {
         this.authenticationService = authenticationService;
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("signup")
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
