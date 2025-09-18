@@ -27,7 +27,6 @@ public class AuthenticationRestController {
         this.authenticationService = authenticationService;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("signup")
     public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);

@@ -28,11 +28,11 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String fullName;
 
-    @Column(nullable = false)
-    private String dni;
+    // @Column(nullable = false)
+    // private String dni;
 
-    @Column(nullable = false)
-    private String age;
+    // @Column(nullable = false)
+    // private String age;
 
     @Column(unique = true, length = 100, nullable = false)
     private String email;

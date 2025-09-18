@@ -32,11 +32,13 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable()) // ⚠️ Deshabilitar CSRF para APIs REST, pero mantenerlo para formularios
+
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 🔥 habilitar CORS
+
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (registro, login, recursos estáticos)
-                        .requestMatchers("/auth/login-form", "/api/auth/login", "/api/v1/auth/signup",
-                                "/uploads/**", "/swagger-ui/**",
-                                "/v3/api-docs/**", "/css/**", "/js/**", "/favicon.ico", "/api/v1/users/test/**")
+                        .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/css/**", "/js/**",
+                                "/favicon.ico", "/api/v1/public/**")
                         .permitAll()
 
                         // Endpoints REST deben usar JWT/Bearer
@@ -54,13 +56,15 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(allowedOrigin,"http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedOrigins(List.of("http://plexsalud:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true); // 🔥 Necesario si vas a usar cookies o Authorization
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", configuration);
+        // source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
