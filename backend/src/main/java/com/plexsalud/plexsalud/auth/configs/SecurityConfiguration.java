@@ -37,15 +37,11 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (registro, login, recursos estáticos)
-                        .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/css/**", "/js/**",
-                                "/favicon.ico", "/api/v1/public/**")
+                        .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login", "/api/v1/auth/signup")
                         .permitAll()
 
-                        // Endpoints REST deben usar JWT/Bearer
-                        // .requestMatchers("/api/v1/**").authenticated()
-
                         // requieren login por sesión/cookie
-                        .requestMatchers("/api/v1/**").authenticated())
+                        .requestMatchers("/api/**").authenticated())
                 // 👇 para que funcionen Bearer y cookies o sesiones
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

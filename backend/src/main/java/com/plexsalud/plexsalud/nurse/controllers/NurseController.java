@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.user.controllers;
+package com.plexsalud.plexsalud.nurse.controllers;
 
 import java.net.URI;
 import java.util.List;
@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,19 +19,18 @@ import com.plexsalud.plexsalud.user.services.UserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Tag(name = "Usuarios", description = "Operaciones con usuarios")
 @SecurityRequirement(name = "bearerAuth")
-@RequestMapping("/api/v1/public/users")
+@RequestMapping("/api/v1/nurses")
 @RestController
-public class UserPublicRestController {
+public class NurseController {
     @Autowired
     private final UserService userService;
 
-    public UserPublicRestController(UserService userService) {
+    public NurseController(UserService userService) {
         this.userService = userService;
     }
 
