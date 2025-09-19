@@ -5,8 +5,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.dtos.LoginUserDto;
-import com.plexsalud.plexsalud.dtos.RegisterUserDto;
+import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
+import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
 import com.plexsalud.plexsalud.user.entities.User;
 import com.plexsalud.plexsalud.user.repositories.UserRepository;
 

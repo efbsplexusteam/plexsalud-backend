@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.dtos;
+package com.plexsalud.plexsalud.auth.dtos;
 
 import lombok.Data;
 

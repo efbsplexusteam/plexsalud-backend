@@ -1,17 +1,16 @@
 package com.plexsalud.plexsalud.auth.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
+import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
 import com.plexsalud.plexsalud.auth.responses.LoginResponse;
 import com.plexsalud.plexsalud.auth.services.AuthenticationService;
 import com.plexsalud.plexsalud.auth.services.JwtService;
-import com.plexsalud.plexsalud.dtos.LoginUserDto;
-import com.plexsalud.plexsalud.dtos.RegisterUserDto;
 import com.plexsalud.plexsalud.user.entities.User;
 
 @RequestMapping("/api/v1/auth")
@@ -33,6 +32,7 @@ public class AuthenticationRestController {
 
         return ResponseEntity.ok(registeredUser);
     }
+
 
     @PostMapping("login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
