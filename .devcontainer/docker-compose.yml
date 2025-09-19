@@ -1,0 +1,21 @@
+services:
+
+  spring-boot-plexsalud:
+    env_file:
+      - .env.test
+    container_name: spring-boot-plexsalud
+    tty: true
+    build: .
+    volumes:
+      - ../:/api
+    links:
+      - postgres-plexsalud
+
+  postgres-plexsalud:
+    env_file:
+      - .env.test
+    container_name: postgres-plexsalud
+    image: postgres:16
+    volumes:
+      - ../databases/postgres-db:/var/lib/postgresql/data/
+      - ../databases/postgres-backup:/backup
