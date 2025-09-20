@@ -14,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -45,8 +47,19 @@ public class SecurityConfiguration {
                         // requieren login por sesión/cookie
                         .requestMatchers("/api/**").authenticated())
                 // 👇 para que funcionen Bearer y cookies o sesiones
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
+                .exceptionHandling(ex -> ex
+                        // 👉 Si no hay token o está inválido → 401
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized: " + authException.getMessage());
+                        })
+                        // 👉 Si hay token pero no tiene permisos → 403
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("Forbidden: " + accessDeniedException.getMessage());
+                        }));
         return http.build();
     }
 

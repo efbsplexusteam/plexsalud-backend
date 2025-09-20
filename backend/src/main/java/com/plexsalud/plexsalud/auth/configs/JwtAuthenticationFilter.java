@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import com.plexsalud.plexsalud.auth.services.JwtService;
+
+import io.jsonwebtoken.ExpiredJwtException;
 
 import java.io.IOException;
 
@@ -64,7 +67,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            // 👇 Token expirado → lo tratamos como no autenticado
+            throw new BadCredentialsException("Token expirado", e);
         } catch (Exception exception) {
+            // 👇 Otros errores van al resolver global
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
