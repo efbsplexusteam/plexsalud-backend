@@ -12,4 +12,6 @@ import org.springframework.data.repository.CrudRepository;
 @Repository
 public interface UserRepository extends CrudRepository<User, UUID> {
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmailAndProfile(String email, Integer profile);
 }
