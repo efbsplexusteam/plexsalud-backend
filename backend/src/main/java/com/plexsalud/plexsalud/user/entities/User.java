@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,14 +27,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private UUID uuid;
 
-    @Column(nullable = false)
-    private Integer profile;
-
     @Column(unique = true, length = 100, nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING) // guarda el nombre (ADMIN, EMPLEADO, etc.)
+    private Role role;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
@@ -78,13 +80,13 @@ public class User implements UserDetails {
         return true;
     }
 
-    public User setProfile(Integer profile) {
-        this.profile = profile;
+    public User setRole(Role role) {
+        this.role = role;
         return this;
     }
 
-    public Integer getProfile() {
-        return this.profile;
+    public Role getRole() {
+        return this.role;
     }
 
     public User setPassword(String password) {

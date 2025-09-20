@@ -1,6 +1,9 @@
 package com.plexsalud.plexsalud.auth.controllers;
 
 import jakarta.servlet.http.Cookie;
+
+import java.util.HashMap;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import com.plexsalud.plexsalud.auth.responses.LoginResponse;
 import com.plexsalud.plexsalud.auth.services.AuthenticationService;
 import com.plexsalud.plexsalud.auth.services.JwtService;
 import com.plexsalud.plexsalud.user.entities.User;
+import com.plexsalud.plexsalud.user.entities.Role;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -42,7 +46,7 @@ public class AuthenticationController {
     @PostMapping("login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
-        Integer profile = authenticatedUser.getProfile();
+        Role role = authenticatedUser.getRole();
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
@@ -57,7 +61,7 @@ public class AuthenticationController {
                 .maxAge(60 * 60 * 24 * 1) // 1 día de expiración
                 .build();
 
-        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(profile)
+        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role)
                 .setExpiresIn(jwtService.getExpirationTime());
 
         // Enviamos la respuesta con el access token en el cuerpo y el refresh token en
@@ -72,9 +76,12 @@ public class AuthenticationController {
         String refreshToken = extractJwtFromCookies(request);
         jwtService.getExpirationTime();
 
-        String jwtToken = jwtService.generateNewAccessToken(refreshToken);
+        HashMap<String, Object> map = jwtService.generateNewAccessToken(refreshToken);
 
-        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(0)
+        String jwtToken = (String) map.get("token");
+        Role role = (Role) map.get("role");
+
+        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role)
                 .setExpiresIn(jwtService.getExpirationTime());
 
         return ResponseEntity.ok(loginResponse);

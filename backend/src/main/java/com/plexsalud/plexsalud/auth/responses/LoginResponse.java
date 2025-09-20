@@ -1,9 +1,10 @@
 package com.plexsalud.plexsalud.auth.responses;
+import com.plexsalud.plexsalud.user.entities.Role;
 
 public class LoginResponse {
     private String accessToken;
 
-    private Integer role;
+    private Role role;
 
     private long expiresIn;
 
@@ -16,11 +17,11 @@ public class LoginResponse {
         return this;
     }
 
-    public Integer getRole() {
+    public Role getRole() {
         return this.role;
     }
 
-    public LoginResponse setRole(Integer role) {
+    public LoginResponse setRole(Role role) {
         this.role = role;
         return this;
     }

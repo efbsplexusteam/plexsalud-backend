@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.plexsalud.plexsalud.user.entities.Role;
 import com.plexsalud.plexsalud.user.entities.User;
 
 @Service
@@ -47,7 +48,7 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        extraClaims.put("profile", ((User) userDetails).getProfile());
+        extraClaims.put("role", ((User) userDetails).getRole());
 
         return generateToken(extraClaims, userDetails);
     }
@@ -64,7 +65,7 @@ public class JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        extraClaims.put("profile", ((User) userDetails).getProfile());
+        extraClaims.put("role", ((User) userDetails).getRole());
 
         return generateRefreshToken(extraClaims, userDetails);
     }
@@ -75,16 +76,23 @@ public class JwtService {
         return buildToken(extraClaims, userDetails, jwtRefreshExpiration);
     }
 
-    public String generateNewAccessToken(String token) {
+    public HashMap<String, Object> generateNewAccessToken(String token) {
         Claims claims = extractAllClaims(token);
 
-        Integer profile = claims.get("profile", Integer.class);
+        String roleString = claims.get("role", String.class);
+        Role role = Role.valueOf(roleString);
 
         User user = new User();
         user.setEmail(claims.getSubject());
-        user.setProfile(profile);
+        user.setRole(role);
 
-        return generateToken(user);
+        String newToken = generateToken(user);
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("token", newToken);
+        map.put("role", role);
+
+        return map;
     }
     /* ----------RefreshToken---------- */
 
@@ -92,7 +100,6 @@ public class JwtService {
     public long getExpirationTime() {
         return jwtExpiration;
     }
-    
 
     // Construye un token JWT con los claims adicionales, detalles del usuario y
     // tiempo de expiración especificados

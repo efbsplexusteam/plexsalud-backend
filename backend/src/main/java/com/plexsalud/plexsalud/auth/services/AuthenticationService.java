@@ -29,7 +29,7 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto input) {
         User user = new User()
-                .setProfile(input.getProfile())
+                .setRole(input.getRole())
                 .setEmail(input.getEmail())
                 .setPassword(passwordEncoder.encode(input.getPassword()));
 
@@ -42,7 +42,7 @@ public class AuthenticationService {
                         input.getEmail(),
                         input.getPassword()));
 
-        return userRepository.findByEmailAndProfile(input.getEmail(), input.getProfile())
+        return userRepository.findByEmailAndRole(input.getEmail(), input.getRole())
                 .orElseThrow();
     }
 }
