@@ -17,7 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Table(name = "users")
+@Table(name = "patients")
 @Entity
 public class Patient implements UserDetails {
     @Id

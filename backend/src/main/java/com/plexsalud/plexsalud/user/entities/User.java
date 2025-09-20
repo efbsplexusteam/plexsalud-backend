@@ -26,13 +26,7 @@ public class User implements UserDetails {
     private UUID uuid;
 
     @Column(nullable = false)
-    private String fullName;
-
-    // @Column(nullable = false)
-    // private String dni;
-
-    // @Column(nullable = false)
-    // private String age;
+    private Integer profile;
 
     @Column(unique = true, length = 100, nullable = false)
     private String email;
@@ -84,9 +78,13 @@ public class User implements UserDetails {
         return true;
     }
 
-    public User setFullName(String fullName) {
-        this.fullName = fullName;
+    public User setProfile(Integer profile) {
+        this.profile = profile;
         return this;
+    }
+
+    public Integer getProfile() {
+        return this.profile;
     }
 
     public User setPassword(String password) {
