@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plexsalud.plexsalud.user.dtos.UserDto;
-import com.plexsalud.plexsalud.user.entities.User;
 import com.plexsalud.plexsalud.user.services.UserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,11 +18,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/v1/users")
 @RestController
-public class UserRestController {
+public class UserController {
     @Autowired
     private final UserService userService;
 
-    public UserRestController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
