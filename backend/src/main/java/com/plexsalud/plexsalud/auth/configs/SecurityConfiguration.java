@@ -37,7 +37,9 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (registro, login, recursos estáticos)
-                        .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login", "/api/v1/auth/signup")
+                        .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login",
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/signup")
                         .permitAll()
 
                         // requieren login por sesión/cookie
@@ -52,15 +54,14 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://plexsalud:3000"));
+        configuration.setAllowedOrigins(List.of("http://plexsalud:4200"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // 🔥 Necesario si vas a usar cookies o Authorization
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/**", configuration);
-        // source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
