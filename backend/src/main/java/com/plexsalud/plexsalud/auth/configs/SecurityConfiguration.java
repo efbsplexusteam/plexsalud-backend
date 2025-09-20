@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (registro, login, recursos estáticos)
                         .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login",
-                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/refresh", "/api/v1/auth/logout",
                                 "/api/v1/auth/signup")
                         .permitAll()
 

@@ -22,6 +22,7 @@ import com.plexsalud.plexsalud.user.entities.User;
 import com.plexsalud.plexsalud.user.entities.Role;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequestMapping("/api/v1/auth")
 @RestController
@@ -69,6 +70,19 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString()) // Seteamos la cookie en la cabecera
                 .body(loginResponse);
+    }
+
+    @GetMapping("logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false); // ⚠️ en producción con HTTPS
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0); // 👈 expira inmediatamente
+
+        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("refresh")

@@ -43,6 +43,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // 👇 Si estoy en login, signup o refresh → no valido access token
+        if (path.startsWith("/api/v1/auth/login")
+                || path.startsWith("/api/v1/auth/signup")
+                || path.startsWith("/api/v1/auth/refresh")
+                || path.startsWith("/api/v1/auth/logout")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String jwt = extractJwtFromRequest(request);
 
