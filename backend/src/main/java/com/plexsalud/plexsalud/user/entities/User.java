@@ -98,4 +98,14 @@ public class User implements UserDetails {
         this.email = email;
         return this;
     }
+
+    public User setUuid(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
 }

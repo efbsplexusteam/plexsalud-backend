@@ -5,10 +5,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,6 +39,22 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extrae el uuid de usuario del la request
+    public UUID extractUuid(HttpServletRequest request) {
+        String token = extractJwtFromRequest(request);
+        String uuidString = extractClaim(token, claims -> claims.get("uuid", String.class));
+        return UUID.fromString(uuidString);
+    }
+
+    private String extractJwtFromRequest(HttpServletRequest request) {
+        final String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null; // ninguno encontrado
+    }
+
     // Extrae cualquier claim específico del token JWT utilizando una función
     // proporcionada
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -48,6 +67,7 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
+        extraClaims.put("uuid", ((User) userDetails).getUuid());
         extraClaims.put("role", ((User) userDetails).getRole());
 
         return generateToken(extraClaims, userDetails);
@@ -65,6 +85,7 @@ public class JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
+        extraClaims.put("uuid", ((User) userDetails).getUuid());
         extraClaims.put("role", ((User) userDetails).getRole());
 
         return generateRefreshToken(extraClaims, userDetails);
@@ -79,12 +100,13 @@ public class JwtService {
     public HashMap<String, Object> generateNewAccessToken(String token) {
         Claims claims = extractAllClaims(token);
 
+        String uuidString = claims.get("uuid", String.class);
+        UUID uuid = UUID.fromString(uuidString);
         String roleString = claims.get("role", String.class);
         Role role = Role.valueOf(roleString);
 
         User user = new User();
-        user.setEmail(claims.getSubject());
-        user.setRole(role);
+        user.setEmail(claims.getSubject()).setRole(role).setUuid(uuid);
 
         String newToken = generateToken(user);
 
