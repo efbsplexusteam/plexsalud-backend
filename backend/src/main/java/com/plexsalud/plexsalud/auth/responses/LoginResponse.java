@@ -1,16 +1,27 @@
 package com.plexsalud.plexsalud.auth.responses;
 
 public class LoginResponse {
-    private String token;
+    private String accessToken;
+
+    private Integer role;
 
     private long expiresIn;
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public LoginResponse setToken(String token) {
-        this.token = token;
+    public LoginResponse setAccessToken(String token) {
+        this.accessToken = token;
+        return this;
+    }
+
+    public Integer getRole() {
+        return this.role;
+    }
+
+    public LoginResponse setRole(Integer role) {
+        this.role = role;
         return this;
     }
 
