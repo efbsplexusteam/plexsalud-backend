@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import com.plexsalud.plexsalud.user.entities.User;
+import com.plexsalud.plexsalud.user.entities.Role;
 
 import org.springframework.data.repository.CrudRepository;
 
@@ -13,5 +14,5 @@ import org.springframework.data.repository.CrudRepository;
 public interface UserRepository extends CrudRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByEmailAndProfile(String email, Integer profile);
+    Optional<User> findByEmailAndRole(String email, Role role);
 }
