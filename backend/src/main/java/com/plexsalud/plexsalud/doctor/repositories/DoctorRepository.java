@@ -6,10 +6,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import com.plexsalud.plexsalud.doctor.entities.Doctor;
+import com.plexsalud.plexsalud.user.entities.User;
 
 import org.springframework.data.repository.CrudRepository;
 
 @Repository
 public interface DoctorRepository extends CrudRepository<Doctor, UUID> {
-    Optional<Doctor> findByEmail(String email);
+    Optional<Doctor> findByUser(User user);
 }
