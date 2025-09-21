@@ -3,26 +3,27 @@ package com.plexsalud.plexsalud.doctor.controllers;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.plexsalud.plexsalud.auth.services.JwtService;
 import com.plexsalud.plexsalud.doctor.dtos.DoctorDto;
-import com.plexsalud.plexsalud.doctor.entities.Doctor;
 import com.plexsalud.plexsalud.doctor.reponses.DoctorResponse;
 import com.plexsalud.plexsalud.doctor.services.DoctorService;
+import com.plexsalud.plexsalud.user.entities.Role;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Tag(name = "Doctores", description = "Operaciones con doctores")
+@Tag(name = "Doctors", description = "Operations with doctors")
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/v1/doctor")
 @RestController
@@ -38,11 +39,16 @@ public class DoctorController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("")
-
+    @PostMapping
     public ResponseEntity<DoctorResponse> saveDoctor(HttpServletRequest request,
             @RequestBody DoctorDto doctorDto) {
         UUID uuid = jwtService.extractUuid(request);
+        Role role = jwtService.extractRole(request);
+
+        if (role != Role.PATIENT) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role Invalid");
+        }
+
         doctorDto.setUserUuid(uuid);
         DoctorResponse saved = doctorService.save(doctorDto);
         return ResponseEntity.ok(saved);
@@ -55,8 +61,6 @@ public class DoctorController {
         DoctorResponse doctorResponse = doctorService.findOneByUser(uuid);
 
         return ResponseEntity.ok(doctorResponse);
-        // .map(ResponseEntity::ok) // ✅ 200 OK si existe
-        // .orElseGet(() -> ResponseEntity.notFound().build()); // ❌ 404 si no existe
     }
 
     @GetMapping("uuid")
@@ -64,9 +68,6 @@ public class DoctorController {
         DoctorResponse doctorResponse = doctorService.findOne(uuid);
 
         return ResponseEntity.ok(doctorResponse);
-
-        // .map(ResponseEntity::ok) // ✅ 200 OK si existe
-        // .orElseGet(() -> ResponseEntity.notFound().build()); // ❌ 404 si no existe
     }
 
 }
