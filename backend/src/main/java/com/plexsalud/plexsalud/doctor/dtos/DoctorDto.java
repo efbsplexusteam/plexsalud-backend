@@ -1,12 +1,15 @@
 package com.plexsalud.plexsalud.doctor.dtos;
 
-import lombok.Data;
+import java.util.UUID;
 
+import lombok.Data;
 @Data
 public class DoctorDto {
-    private String userId;
 
-    private String name;
+    private String fullName;
+    private UUID userUuid;
 
-    private String speciality;
+    public void setFullName(String fullName) {
+        this.fullName = (fullName != null) ? fullName.toLowerCase() : null;
+    }
 }
