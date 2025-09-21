@@ -1,12 +1,11 @@
 package com.plexsalud.plexsalud.patient.dtos;
 
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class PatientDto {
-    private String userId;
-
-    private String name;
-
-    private String speciality;
+    private UUID userUuid;
+    private String fullName;
 }
