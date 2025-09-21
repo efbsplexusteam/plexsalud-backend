@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,19 @@ public class JwtService {
         String token = extractJwtFromRequest(request);
         String uuidString = extractClaim(token, claims -> claims.get("uuid", String.class));
         return UUID.fromString(uuidString);
+    }
+
+    // Extrae el uuid de usuario del la request
+    public Role extractRole(HttpServletRequest request) {
+        String token = extractJwtFromRequest(request);
+        String roleString = extractClaim(token, claims -> claims.get("role", String.class));
+        if (roleString == null) {
+            throw new RuntimeException("Role not found in token");
+        }
+        return Arrays.stream(Role.values())
+             .filter(r -> r.name().equalsIgnoreCase(roleString))
+             .findFirst()
+             .orElseThrow(() -> new RuntimeException("Role inválido"));
     }
 
     private String extractJwtFromRequest(HttpServletRequest request) {
