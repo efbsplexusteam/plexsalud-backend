@@ -1,91 +1,69 @@
 package com.plexsalud.plexsalud.nurse.controllers;
 
-import java.net.URI;
-import java.util.List;
+import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.plexsalud.plexsalud.user.entities.User;
-import com.plexsalud.plexsalud.user.services.UserService;
+import com.plexsalud.plexsalud.auth.services.JwtService;
+import com.plexsalud.plexsalud.nurse.dtos.NurseDto;
+import com.plexsalud.plexsalud.nurse.responses.NurseResponse;
+import com.plexsalud.plexsalud.nurse.services.NurseService;
+import com.plexsalud.plexsalud.user.entities.Role;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Tag(name = "Usuarios", description = "Operaciones con usuarios")
+@Tag(name = "Nurses", description = "Operations with nurses")
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/v1/nurses")
 @RestController
 public class NurseController {
-    @Autowired
-    private final UserService userService;
 
-    public NurseController(UserService userService) {
-        this.userService = userService;
+    private final NurseService nurseService;
+    private final JwtService jwtService;
+
+    public NurseController(JwtService jwtService, NurseService nurseService) {
+        this.jwtService = jwtService;
+        this.nurseService = nurseService;
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<User>> allUsers() {
-        List<User> users = userService.getAllUsers();
+    @PostMapping
+    public ResponseEntity<NurseResponse> saveNurse(HttpServletRequest request,
+            @RequestBody NurseDto nurseDto) {
+        UUID uuid = jwtService.extractUuid(request);
+        Role role = jwtService.extractRole(request);
 
-        return ResponseEntity.ok(users);
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<Void> test(@RequestParam String username, @RequestParam String password) {
-        // lógica opcional (crear usuario, etc.)
-
-        ResponseCookie cookie = ResponseCookie.from("token", "valentin" + username + password + "")
-                .path("/")
-                .domain("plexsalud") // asegúrate que sea el mismo dominio que el frontend
-                .httpOnly(true)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .location(URI.create("http://plexsalud:3000/src/index.php"))
-                .build();
-
-        // URI redirectUri = URI.create("http://localhost/api/v1/users/" + username +
-        // "/" + password); // URL completa de destino
-        // return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
-    }
-
-    @GetMapping("test/guard")
-    public ResponseEntity<Void> guard(HttpServletRequest request) {
-
-        String c = "";
-
-        // 2. Buscar en Cookies
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("token".equals(cookie.getName())) {
-                    c += cookie.getName();
-                    System.out.println(c);
-                    return ResponseEntity.status(HttpStatus.FOUND)
-                            .location(URI.create("http://plexsalud:3000/src/protected.php?token=" + c))
-                            .build();
-                }
-            }
+        if (role != Role.NURSE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role Invalid");
         }
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://plexsalud:3000/src/logout.php"))
-                .build();
 
+        nurseDto.setUserUuid(uuid);
+        NurseResponse saved = nurseService.save(nurseDto);
+        return ResponseEntity.ok(saved);
     }
 
-    // URI redirectUri = URI.create("http://localhost/api/v1/users/" + username +
-    // "/" + password); // URL completa de destino
-    // return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
+    @GetMapping("self")
+    public ResponseEntity<NurseResponse> findSelf(HttpServletRequest request) {
+        UUID uuid = jwtService.extractUuid(request);
 
+        NurseResponse nurseResponse = nurseService.findOneByUser(uuid);
+
+        return ResponseEntity.ok(nurseResponse);
+    }
+
+    @GetMapping("uuid")
+    public ResponseEntity<NurseResponse> findOne(@RequestParam("uuid") UUID uuid) {
+        NurseResponse nurseResponse = nurseService.findOne(uuid);
+
+        return ResponseEntity.ok(nurseResponse);
+    }
 }
