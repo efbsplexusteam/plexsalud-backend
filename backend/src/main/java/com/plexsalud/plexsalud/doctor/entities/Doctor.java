@@ -34,12 +34,6 @@ public class Doctor {
     @JoinColumn(name = "user_uuid")
     private User user;
 
-    @Column(unique = true, length = 100, nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
