@@ -62,4 +62,17 @@ public class AppointmentService {
         return appointmentRepository.findAllAppointmentsByDoctor(doctor);
     }
 
+    public boolean deleteAppointment(UUID uuid) {
+        try {
+            if (!appointmentRepository.existsById(uuid)) {
+                return false;
+            }
+
+            appointmentRepository.deleteById(uuid);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
