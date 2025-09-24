@@ -61,10 +61,10 @@ public class PatientController {
     }
 
     @GetMapping("uuid")
-    public ResponseEntity<PatientResponse> findOne(@RequestParam("uuid") UUID uuid) {
+    public PatientResponse findOne(@RequestParam("uuid") UUID uuid) {
         PatientResponse patientResponse = patientService.findOne(uuid);
 
-        return ResponseEntity.ok(patientResponse);
+        return patientResponse;
     }
 
 }

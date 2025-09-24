@@ -1,8 +1,8 @@
 package com.plexsalud.plexsalud.doctor.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.plexsalud.plexsalud.auth.services.JwtService;
 import com.plexsalud.plexsalud.doctor.dtos.DoctorDto;
+import com.plexsalud.plexsalud.doctor.dtos.DoctorFullNameAndUuidDto;
 import com.plexsalud.plexsalud.doctor.reponses.DoctorResponse;
 import com.plexsalud.plexsalud.doctor.services.DoctorService;
 import com.plexsalud.plexsalud.user.entities.Role;
@@ -28,10 +29,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1/doctor")
 @RestController
 public class DoctorController {
-    @Autowired
     private final DoctorService doctorService;
-
-    @Autowired
     private final JwtService jwtService;
 
     public DoctorController(DoctorService doctorService, JwtService jwtService) {
@@ -45,7 +43,7 @@ public class DoctorController {
         UUID uuid = jwtService.extractUuid(request);
         Role role = jwtService.extractRole(request);
 
-        if (role != Role.PATIENT) {
+        if (role != Role.DOCTOR) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role Invalid");
         }
 
@@ -68,6 +66,19 @@ public class DoctorController {
         DoctorResponse doctorResponse = doctorService.findOne(uuid);
 
         return ResponseEntity.ok(doctorResponse);
+    }
+
+    @GetMapping("specialties")
+    public List<String> findAllSpecialties() {
+        List<String> specialties = doctorService.findAllSpecialties();
+
+        return specialties;
+    }
+
+    @GetMapping("doctors-by-specialty")
+    public List<DoctorFullNameAndUuidDto> findAllSpecialties(@RequestParam("specialty") String specialty) {
+        List<DoctorFullNameAndUuidDto> doctors = doctorService.findAllDoctorsBySpecialty(specialty.toLowerCase());
+        return doctors;
     }
 
 }
