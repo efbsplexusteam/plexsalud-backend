@@ -16,7 +16,7 @@ pipeline {
 
       steps {
           script {
-              def dockerfilePath = './plexsalud/Dockerfile'
+              def dockerfilePath = './backend/Dockerfile'
               if (fileExists(dockerfilePath)) {
                   echo "Dockerfile found at: ${dockerfilePath}"
               } else {
@@ -35,7 +35,7 @@ pipeline {
           sh """
           docker build --no-cache --memory=1g --memory-swap=2g \
           -t ${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG} \
-          ./plexsalud
+          ./backend
           """
         }
       }
