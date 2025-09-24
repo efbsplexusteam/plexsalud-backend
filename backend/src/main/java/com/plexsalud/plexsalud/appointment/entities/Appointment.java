@@ -1,24 +1,27 @@
 package com.plexsalud.plexsalud.appointment.entities;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import com.plexsalud.plexsalud.doctor.entities.Doctor;
+import com.plexsalud.plexsalud.patient.entities.Patient;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Table(name = "appointment")
 @Entity
+@Data
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,25 +29,24 @@ public class Appointment {
     private UUID uuid;
 
     @Column(nullable = false)
-    private String fullName;
-
-    // @Column(nullable = false)
-    // private String dni;
-
-    // @Column(nullable = false)
-    // private String age;
-
-    @Column(unique = true, length = 100, nullable = false)
-    private String email;
+    private OffsetDateTime date;
 
     @Column(nullable = false)
-    private String password;
+    private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_uuid")
+    private Doctor doctor;
+
+    @ManyToOne
+    @JoinColumn(name = "patient_uuid")
+    private Patient patient;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
-    private Date createdAt;
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private OffsetDateTime updatedAt;
 }
