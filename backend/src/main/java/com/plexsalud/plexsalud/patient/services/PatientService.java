@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.plexsalud.plexsalud.patient.dtos.PatientDto;
 import com.plexsalud.plexsalud.patient.responses.PatientResponse;
 import com.plexsalud.plexsalud.patient.entities.Patient;
+import com.plexsalud.plexsalud.patient.exceptions.PatientNotFoundException;
 import com.plexsalud.plexsalud.patient.repositories.PatientRepository;
 import com.plexsalud.plexsalud.user.entities.User;
 import com.plexsalud.plexsalud.user.repositories.UserRepository;
@@ -46,10 +47,25 @@ public class PatientService {
         return new PatientResponse(patient.getFullName());
     }
 
-    public PatientResponse findOneByUser(UUID uuid) {
-        Patient patient = patientRepository.findByUser(new User().setUuid(uuid))
+    public Patient findOneRaw(UUID uuid) {
+        return patientRepository.findByUser(new User().setUuid(uuid))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Patient not found with uuid: " + uuid));
+    }
+
+    public Patient findOneRawByUser(UUID uuid) {
+        return patientRepository.findByUser(new User().setUuid(uuid))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Patient not found with user_uuid: " + uuid));
+    }
+
+    public PatientResponse findOneByUser(UUID uuid) {
+        Patient patient = patientRepository.findByUser(new User().setUuid(uuid))
+                .orElseThrow(() -> new PatientNotFoundException(
+                        "Patient not found with uuid: " + uuid));
+
+        // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+        // "Patient not found with uuid: " + uuid));
 
         return new PatientResponse(patient.getFullName());
     }
