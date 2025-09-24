@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
 import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
+import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
 import com.plexsalud.plexsalud.user.entities.User;
 import com.plexsalud.plexsalud.user.repositories.UserRepository;
 
@@ -27,13 +28,13 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User signup(RegisterUserDto input) {
+    public RegisterResponse signup(RegisterUserDto input) {
         User user = new User()
                 .setRole(input.getRole())
                 .setEmail(input.getEmail())
                 .setPassword(passwordEncoder.encode(input.getPassword()));
-
-        return userRepository.save(user);
+        User userSaved = userRepository.save(user);
+        return new RegisterResponse(userSaved.getRole());
     }
 
     public User authenticate(LoginUserDto input) {

@@ -31,5 +31,4 @@ public class LoginResponse {
         return this;
     }
 
-    // Getters and setters...
 }
