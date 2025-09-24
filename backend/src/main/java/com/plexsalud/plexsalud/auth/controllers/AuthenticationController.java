@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
 import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
 import com.plexsalud.plexsalud.auth.responses.LoginResponse;
+import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
 import com.plexsalud.plexsalud.auth.services.AuthenticationService;
 import com.plexsalud.plexsalud.auth.services.JwtService;
 import com.plexsalud.plexsalud.user.entities.User;
@@ -38,10 +39,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
-
-        return ResponseEntity.ok(registeredUser);
+    public RegisterResponse register(@RequestBody RegisterUserDto registerUserDto) {
+        return authenticationService.signup(registerUserDto);
     }
 
     @PostMapping("login")
@@ -56,17 +55,15 @@ public class AuthenticationController {
 
         // Enviamos el refresh token como una cookie
         ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
-                .httpOnly(true) // La cookie solo es accesible a través de HTTP, no JavaScript
-                .secure(false) // Solo se enviará por HTTPS (asegúrate de tener HTTPS habilitado)
-                .path("/") // El path donde la cookie estará disponible
-                .maxAge(60 * 60 * 24 * 1) // 1 día de expiración
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(60 * 60 * 24 * 1)
                 .build();
 
         LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role)
                 .setExpiresIn(jwtService.getExpirationTime());
 
-        // Enviamos la respuesta con el access token en el cuerpo y el refresh token en
-        // la cookie
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString()) // Seteamos la cookie en la cabecera
                 .body(loginResponse);
@@ -76,9 +73,9 @@ public class AuthenticationController {
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         Cookie refreshTokenCookie = new Cookie("refresh_token", null);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false); // ⚠️ en producción con HTTPS
+        refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0); // 👈 expira inmediatamente
+        refreshTokenCookie.setMaxAge(0);
 
         response.addCookie(refreshTokenCookie);
 
