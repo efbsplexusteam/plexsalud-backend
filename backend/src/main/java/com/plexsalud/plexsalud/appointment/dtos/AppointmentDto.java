@@ -1,12 +1,15 @@
 package com.plexsalud.plexsalud.appointment.dtos;
 
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import lombok.Data;
 
 @Data
 public class AppointmentDto {
-    private String userId;
+    private OffsetDateTime date;
 
-    private String name;
+    private UUID doctorUuid;
 
-    private String speciality;
+    private UUID patientUuid;
 }
