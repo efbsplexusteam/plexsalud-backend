@@ -2,8 +2,9 @@ pipeline {
   agent none
 
   environment {
-    DOCKER_IMAGE = "plexsalud" // Nombre de la imagen Docker con el número de construcción
-    DOCKER_IMAGE_TAG = "${env.BUILD_NUMBER}" // Nombre de la imagen Docker con el número de construcción
+    DOCKER_IMAGE = "plexsalud-backend"
+    DOCKER_IMAGE_TAG = "${env.BUILD_NUMBER}"
+    COMPOSE_DIR = "/docker/plexsalud"
   }
 
   stages {
@@ -39,7 +40,28 @@ pipeline {
         }
       }
     }
+
+    // stage('Deploy') {
+    //   agent any
+
+    //   steps {
+    //     sh """
+    //       sed -i 's|image: ${DOCKER_IMAGE}:.*|image: ${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG}|' ${COMPOSE_DIR}/docker-compose.yml
+    //     """
+
+    //     sh """
+    //       cd ${COMPOSE_DIR}
+    //       # docker-compose down
+    //       # docker-compose up -d --remove-orphans
+    //       # cat ${COMPOSE_DIR}/docker-compose.yml
+    //     """
+
+    //     echo 'Building Docker image for deployment...'
+    //   }
+    // }
   }
+
+  
 
   post {
     always {
