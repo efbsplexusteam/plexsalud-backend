@@ -8,9 +8,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.plexsalud.plexsalud.doctor.exceptions.DoctorNotFoundException;
-import com.plexsalud.plexsalud.nurse.exceptions.NurseNotFoundException;
-import com.plexsalud.plexsalud.patient.exceptions.PatientNotFoundException;
+import com.plexsalud.plexsalud.doctor.domain.exceptions.DoctorNotFoundException;
+import com.plexsalud.plexsalud.nurse.domain.exceptions.NurseNotFoundException;
+import com.plexsalud.plexsalud.patient.domain.exceptions.PatientNotFoundException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
 import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
 import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
-import com.plexsalud.plexsalud.user.entities.User;
-import com.plexsalud.plexsalud.user.repositories.UserRepository;
+import com.plexsalud.plexsalud.user.domain.entities.User;
+import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
 
 @Service
 public class AuthenticationService {
