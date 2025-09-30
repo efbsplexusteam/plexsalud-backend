@@ -19,8 +19,8 @@ import com.plexsalud.plexsalud.auth.responses.LoginResponse;
 import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
 import com.plexsalud.plexsalud.auth.services.AuthenticationService;
 import com.plexsalud.plexsalud.auth.services.JwtService;
-import com.plexsalud.plexsalud.user.entities.User;
-import com.plexsalud.plexsalud.user.entities.Role;
+import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.entities.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

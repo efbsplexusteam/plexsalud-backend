@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.user.entities.Role;
-import com.plexsalud.plexsalud.user.entities.User;
+import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.entities.User;
 
 @Service
 public class JwtService {

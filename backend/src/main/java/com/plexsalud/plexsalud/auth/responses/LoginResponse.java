@@ -1,5 +1,5 @@
 package com.plexsalud.plexsalud.auth.responses;
-import com.plexsalud.plexsalud.user.entities.Role;
+import com.plexsalud.plexsalud.user.domain.entities.Role;
 
 public class LoginResponse {
     private String accessToken;
