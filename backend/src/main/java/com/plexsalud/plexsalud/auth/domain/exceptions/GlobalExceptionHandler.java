@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.exceptions;
+package com.plexsalud.plexsalud.auth.domain.exceptions;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;

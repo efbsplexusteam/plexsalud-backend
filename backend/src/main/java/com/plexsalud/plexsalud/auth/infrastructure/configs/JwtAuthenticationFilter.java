@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.configs;
+package com.plexsalud.plexsalud.auth.infrastructure.configs;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import com.plexsalud.plexsalud.auth.services.JwtService;
+
+import com.plexsalud.plexsalud.auth.application.services.JwtService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
@@ -45,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 👇 Si estoy en login, signup o refresh → no valido access token
         if (path.startsWith("/api/v1/auth/login")
                 || path.startsWith("/api/v1/auth/signup")
                 || path.startsWith("/api/v1/auth/refresh")
@@ -79,22 +79,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            // 👇 Token expirado → lo tratamos como no autenticado
             throw new BadCredentialsException("Token expirado", e);
         } catch (Exception exception) {
-            // 👇 Otros errores van al resolver global
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
 
     private String extractJwtFromRequest(HttpServletRequest request) {
-        // 1. Buscar en Header
         final String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
 
-        return null; // ninguno encontrado
+        return null;
     }
 
 }

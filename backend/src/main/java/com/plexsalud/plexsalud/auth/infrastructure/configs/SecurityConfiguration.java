@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.configs;
+package com.plexsalud.plexsalud.auth.infrastructure.configs;
 
 import java.util.List;
 
@@ -33,29 +33,24 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // ⚠️ Deshabilitar CSRF para APIs REST, pero mantenerlo para formularios
+        http.csrf(csrf -> csrf.disable())
 
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 🔥 habilitar CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (registro, login, recursos estáticos)
                         .requestMatchers("/uploads/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login",
                                 "/api/v1/auth/refresh", "/api/v1/auth/logout",
                                 "/api/v1/auth/signup")
                         .permitAll()
 
-                        // requieren login por sesión/cookie
                         .requestMatchers("/api/**").authenticated())
-                // 👇 para que funcionen Bearer y cookies o sesiones
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling(ex -> ex
-                        // 👉 Si no hay token o está inválido → 401
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.getWriter().write("Unauthorized: " + authException.getMessage());
                         })
-                        // 👉 Si hay token pero no tiene permisos → 403
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.getWriter().write("Forbidden: " + accessDeniedException.getMessage());
@@ -67,7 +62,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://plexsalud:4200"));
+        configuration.setAllowedOrigins(List.of(allowedOrigin.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

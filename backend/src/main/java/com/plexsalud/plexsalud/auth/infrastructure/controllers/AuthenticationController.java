@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.controllers;
+package com.plexsalud.plexsalud.auth.infrastructure.controllers;
 
 import jakarta.servlet.http.Cookie;
 
@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
-import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
-import com.plexsalud.plexsalud.auth.responses.LoginResponse;
-import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
-import com.plexsalud.plexsalud.auth.services.AuthenticationService;
-import com.plexsalud.plexsalud.auth.services.JwtService;
+import com.plexsalud.plexsalud.auth.application.ports.in.AuthenticateUserUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.GenerateNewAccessToken;
+import com.plexsalud.plexsalud.auth.application.ports.in.GenerateRefreshTokenUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.GenerateTokenUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.SignupUserUseCase;
+import com.plexsalud.plexsalud.auth.infrastructure.dtos.LoginUserDto;
+import com.plexsalud.plexsalud.auth.infrastructure.dtos.RegisterUserDto;
+import com.plexsalud.plexsalud.auth.infrastructure.responses.LoginResponse;
+import com.plexsalud.plexsalud.auth.infrastructure.responses.RegisterResponse;
 import com.plexsalud.plexsalud.user.domain.entities.Role;
 import com.plexsalud.plexsalud.user.domain.entities.User;
 
@@ -29,31 +32,40 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 public class AuthenticationController {
 
-    private final JwtService jwtService;
+    private final SignupUserUseCase signupUserUseCase;
+    private final AuthenticateUserUseCase authenticateUserUseCase;
+    private final GenerateTokenUseCase generateTokenUseCase;
+    private final GenerateRefreshTokenUseCase generateRefreshTokenUseCase;
+    private final GenerateNewAccessToken generateNewAccessToken;
 
-    private final AuthenticationService authenticationService;
+    public AuthenticationController(
 
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
-        this.jwtService = jwtService;
-        this.authenticationService = authenticationService;
+            SignupUserUseCase signupUserUseCase,
+            AuthenticateUserUseCase authenticateUserUseCase,
+            GenerateTokenUseCase generateTokenUseCase,
+            GenerateRefreshTokenUseCase generateRefreshTokenUseCase,
+            GenerateNewAccessToken generateNewAccessToken) {
+        this.signupUserUseCase = signupUserUseCase;
+        this.authenticateUserUseCase = authenticateUserUseCase;
+        this.generateTokenUseCase = generateTokenUseCase;
+        this.generateRefreshTokenUseCase = generateRefreshTokenUseCase;
+        this.generateNewAccessToken = generateNewAccessToken;
     }
 
     @PostMapping("signup")
     public RegisterResponse register(@RequestBody RegisterUserDto registerUserDto) {
-        return authenticationService.signup(registerUserDto);
+        return signupUserUseCase.signup(registerUserDto);
     }
 
     @PostMapping("login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+        User authenticatedUser = authenticateUserUseCase.authenticate(loginUserDto);
         Role role = authenticatedUser.getRole();
 
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+        String jwtToken = generateTokenUseCase.generateTokenUseCase(authenticatedUser);
 
-        // Generamos el refresh token con una vida útil más larga
-        String refreshToken = jwtService.generateRefreshToken(authenticatedUser);
+        String refreshToken = generateRefreshTokenUseCase.generateRefreshTokenUseCase(authenticatedUser);
 
-        // Enviamos el refresh token como una cookie
         ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
                 .secure(false)
@@ -61,8 +73,7 @@ public class AuthenticationController {
                 .maxAge(60 * 60 * 24 * 1)
                 .build();
 
-        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role)
-                .setExpiresIn(jwtService.getExpirationTime());
+        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString()) // Seteamos la cookie en la cabecera
@@ -85,15 +96,13 @@ public class AuthenticationController {
     @GetMapping("refresh")
     public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request) {
         String refreshToken = extractJwtFromCookies(request);
-        jwtService.getExpirationTime();
 
-        HashMap<String, Object> map = jwtService.generateNewAccessToken(refreshToken);
+        HashMap<String, Object> map = generateNewAccessToken.generateNewAccessToken(refreshToken);
 
         String jwtToken = (String) map.get("token");
         Role role = (Role) map.get("role");
 
-        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role)
-                .setExpiresIn(jwtService.getExpirationTime());
+        LoginResponse loginResponse = new LoginResponse().setAccessToken(jwtToken).setRole(role);
 
         return ResponseEntity.ok(loginResponse);
     }

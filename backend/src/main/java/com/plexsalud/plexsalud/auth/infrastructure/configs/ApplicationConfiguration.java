@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.configs;
+package com.plexsalud.plexsalud.auth.infrastructure.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

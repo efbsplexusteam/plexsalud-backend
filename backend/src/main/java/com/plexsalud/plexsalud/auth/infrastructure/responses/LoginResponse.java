@@ -1,12 +1,11 @@
-package com.plexsalud.plexsalud.auth.responses;
+package com.plexsalud.plexsalud.auth.infrastructure.responses;
+
 import com.plexsalud.plexsalud.user.domain.entities.Role;
 
 public class LoginResponse {
     private String accessToken;
 
     private Role role;
-
-    private long expiresIn;
 
     public String getAccessToken() {
         return accessToken;
@@ -25,10 +24,4 @@ public class LoginResponse {
         this.role = role;
         return this;
     }
-
-    public LoginResponse setExpiresIn(long expiresIn) {
-        this.expiresIn = expiresIn;
-        return this;
-    }
-
 }

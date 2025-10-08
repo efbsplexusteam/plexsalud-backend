@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.auth.dtos;
+package com.plexsalud.plexsalud.auth.infrastructure.dtos;
 
 import com.plexsalud.plexsalud.user.domain.entities.Role;
 

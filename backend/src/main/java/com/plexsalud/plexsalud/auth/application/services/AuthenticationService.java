@@ -1,18 +1,20 @@
-package com.plexsalud.plexsalud.auth.services;
+package com.plexsalud.plexsalud.auth.application.services;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.auth.dtos.LoginUserDto;
-import com.plexsalud.plexsalud.auth.dtos.RegisterUserDto;
-import com.plexsalud.plexsalud.auth.responses.RegisterResponse;
+import com.plexsalud.plexsalud.auth.application.ports.in.AuthenticateUserUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.SignupUserUseCase;
+import com.plexsalud.plexsalud.auth.infrastructure.dtos.LoginUserDto;
+import com.plexsalud.plexsalud.auth.infrastructure.dtos.RegisterUserDto;
+import com.plexsalud.plexsalud.auth.infrastructure.responses.RegisterResponse;
 import com.plexsalud.plexsalud.user.domain.entities.User;
 import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
 
 @Service
-public class AuthenticationService {
+public class AuthenticationService implements SignupUserUseCase, AuthenticateUserUseCase {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
