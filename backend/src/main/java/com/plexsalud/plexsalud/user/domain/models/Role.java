@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.user.domain.entities;
+package com.plexsalud.plexsalud.user.domain.models;
 
 public enum Role {
     DOCTOR,

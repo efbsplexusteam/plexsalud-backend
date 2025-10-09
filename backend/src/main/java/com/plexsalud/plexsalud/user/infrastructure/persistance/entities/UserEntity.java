@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.user.domain.entities;
+package com.plexsalud.plexsalud.user.infrastructure.persistance.entities;
 
 import java.util.Collection;
 import java.util.Date;
@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.plexsalud.plexsalud.user.domain.models.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +23,7 @@ import jakarta.persistence.Table;
 
 @Table(name = "users")
 @Entity
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false)
@@ -80,7 +82,7 @@ public class User implements UserDetails {
         return true;
     }
 
-    public User setRole(Role role) {
+    public UserEntity setRole(Role role) {
         this.role = role;
         return this;
     }
@@ -89,17 +91,17 @@ public class User implements UserDetails {
         return this.role;
     }
 
-    public User setPassword(String password) {
+    public UserEntity setPassword(String password) {
         this.password = password;
         return this;
     }
 
-    public User setEmail(String email) {
+    public UserEntity setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public User setUuid(UUID uuid) {
+    public UserEntity setUuid(UUID uuid) {
         this.uuid = uuid;
         return this;
     }

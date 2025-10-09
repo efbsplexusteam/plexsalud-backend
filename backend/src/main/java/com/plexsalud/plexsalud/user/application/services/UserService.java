@@ -7,28 +7,28 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.user.domain.entities.User;
-import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.repositories.UserEntityRepository;
 
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
+    private final UserEntityRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserEntityRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
+    public List<UserEntity> getAllUsers() {
+        List<UserEntity> users = new ArrayList<>();
 
         userRepository.findAll().forEach(users::add);
 
         return users;
     }
 
-    public User getUser(UUID uuid) {
-        Optional<User> userOptional = userRepository.findById(uuid);
+    public UserEntity getUser(UUID uuid) {
+        Optional<UserEntity> userOptional = userRepository.findById(uuid);
         if (userOptional.isPresent()) {
             return userOptional.get();
         } else {
