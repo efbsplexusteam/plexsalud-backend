@@ -23,8 +23,9 @@ import com.plexsalud.plexsalud.auth.application.ports.in.ExtractUuidUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateNewAccessToken;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateRefreshTokenUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateTokenUseCase;
-import com.plexsalud.plexsalud.user.domain.entities.Role;
-import com.plexsalud.plexsalud.user.domain.entities.User;
+import com.plexsalud.plexsalud.user.domain.models.Role;
+import com.plexsalud.plexsalud.user.domain.models.User;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
 
 @Service
 public class JwtService
@@ -41,11 +42,21 @@ public class JwtService
     private long jwtRefreshExpiration;
 
     public String generateTokenUseCase(User user) {
-        return generateToken(user);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUuid(user.uuid());
+        userEntity.setEmail(user.email());
+        userEntity.setPassword(user.password());
+        userEntity.setRole(user.role());
+        return generateToken(userEntity);
     }
 
     public String generateRefreshTokenUseCase(User user) {
-        return generateRefreshToken(user);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUuid(user.uuid());
+        userEntity.setEmail(user.email());
+        userEntity.setPassword(user.password());
+        userEntity.setRole(user.role());
+        return generateRefreshToken(userEntity);
     }
 
     public String extractUsername(String token) {
@@ -87,8 +98,8 @@ public class JwtService
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        extraClaims.put("uuid", ((User) userDetails).getUuid());
-        extraClaims.put("role", ((User) userDetails).getRole());
+        extraClaims.put("uuid", ((UserEntity) userDetails).getUuid());
+        extraClaims.put("role", ((UserEntity) userDetails).getRole());
 
         return generateToken(extraClaims, userDetails);
     }
@@ -100,8 +111,8 @@ public class JwtService
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
 
-        extraClaims.put("uuid", ((User) userDetails).getUuid());
-        extraClaims.put("role", ((User) userDetails).getRole());
+        extraClaims.put("uuid", ((UserEntity) userDetails).getUuid());
+        extraClaims.put("role", ((UserEntity) userDetails).getRole());
 
         return generateRefreshToken(extraClaims, userDetails);
     }
@@ -118,7 +129,7 @@ public class JwtService
         String roleString = claims.get("role", String.class);
         Role role = Role.valueOf(roleString);
 
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setEmail(claims.getSubject()).setRole(role).setUuid(uuid);
 
         String newToken = generateToken(user);

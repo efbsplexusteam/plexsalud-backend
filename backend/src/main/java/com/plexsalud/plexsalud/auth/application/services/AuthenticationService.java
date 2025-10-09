@@ -7,22 +7,20 @@ import org.springframework.stereotype.Service;
 
 import com.plexsalud.plexsalud.auth.application.ports.in.AuthenticateUserUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.SignupUserUseCase;
-import com.plexsalud.plexsalud.auth.infrastructure.dtos.LoginUserDto;
-import com.plexsalud.plexsalud.auth.infrastructure.dtos.RegisterUserDto;
-import com.plexsalud.plexsalud.auth.infrastructure.responses.RegisterResponse;
-import com.plexsalud.plexsalud.user.domain.entities.User;
-import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
+import com.plexsalud.plexsalud.user.domain.models.User;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.repositories.UserEntityRepository;
 
 @Service
 public class AuthenticationService implements SignupUserUseCase, AuthenticateUserUseCase {
-    private final UserRepository userRepository;
+    private final UserEntityRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationService(
-            UserRepository userRepository,
+            UserEntityRepository userRepository,
             AuthenticationManager authenticationManager,
             PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
@@ -30,22 +28,23 @@ public class AuthenticationService implements SignupUserUseCase, AuthenticateUse
         this.passwordEncoder = passwordEncoder;
     }
 
-    public RegisterResponse signup(RegisterUserDto input) {
-        User user = new User()
-                .setRole(input.getRole())
-                .setEmail(input.getEmail())
-                .setPassword(passwordEncoder.encode(input.getPassword()));
-        User userSaved = userRepository.save(user);
-        return new RegisterResponse(userSaved.getRole());
+    public User signup(User user) {
+        UserEntity userEntity = new UserEntity()
+                .setRole(user.role())
+                .setEmail(user.email())
+                .setPassword(passwordEncoder.encode(user.password()));
+        UserEntity userSaved = userRepository.save(userEntity);
+        return new User(userSaved.getUuid(), userSaved.getUsername(), userSaved.getPassword(), userSaved.getRole());
     }
 
-    public User authenticate(LoginUserDto input) {
+    public User authenticate(User user) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        input.getEmail(),
-                        input.getPassword()));
+                        user.email(),
+                        user.password()));
 
-        return userRepository.findByEmailAndRole(input.getEmail(), input.getRole())
+        return userRepository.findByEmailAndRole(user.email(), user.role())
+                .map(u -> new User(u.getUuid(), u.getUsername(), u.getPassword(), u.getRole()))
                 .orElseThrow();
     }
 }

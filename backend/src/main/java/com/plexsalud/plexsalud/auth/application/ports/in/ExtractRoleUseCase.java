@@ -1,6 +1,6 @@
 package com.plexsalud.plexsalud.auth.application.ports.in;
 
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.models.Role;
 
 import jakarta.servlet.http.HttpServletRequest;
 

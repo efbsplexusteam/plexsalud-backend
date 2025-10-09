@@ -1,6 +1,6 @@
 package com.plexsalud.plexsalud.auth.infrastructure.responses;
 
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.models.Role;
 
 public class LoginResponse {
     private String accessToken;

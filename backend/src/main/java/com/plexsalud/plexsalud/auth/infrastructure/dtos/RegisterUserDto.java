@@ -1,6 +1,6 @@
 package com.plexsalud.plexsalud.auth.infrastructure.dtos;
 
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.models.Role;
 
 import lombok.Data;
 
