@@ -35,7 +35,7 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING) // guarda el nombre (ADMIN, EMPLEADO, etc.)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @CreationTimestamp
@@ -45,8 +45,6 @@ public class UserEntity implements UserDetails {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
-
-    // Security
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
