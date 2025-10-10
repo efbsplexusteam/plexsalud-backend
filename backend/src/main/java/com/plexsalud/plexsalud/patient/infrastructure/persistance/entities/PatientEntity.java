@@ -1,14 +1,12 @@
-package com.plexsalud.plexsalud.patient.domain.entities;
+package com.plexsalud.plexsalud.patient.infrastructure.persistance.entities;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.plexsalud.plexsalud.appointment.domain.entities.Appointment;
-import com.plexsalud.plexsalud.user.domain.entities.User;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -24,7 +21,7 @@ import lombok.Data;
 @Table(name = "patients")
 @Entity
 @Data
-public class Patient {
+public class PatientEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false)
@@ -35,10 +32,7 @@ public class Patient {
 
     @OneToOne
     @JoinColumn(name = "user_uuid")
-    private User user;
-
-    @OneToMany(mappedBy = "patient")
-    private List<Appointment> appointments;
+    private UserEntity user;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
