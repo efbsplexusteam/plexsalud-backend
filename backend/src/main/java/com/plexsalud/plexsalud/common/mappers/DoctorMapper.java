@@ -14,12 +14,6 @@ public class DoctorMapper {
                 .setFullName(entity.getFullName())
                 .setSpecialty(entity.getSpecialty())
                 .setUser(UserMapper.toDomain(entity.getUser()));
-                // .setAppointments(
-                //         entity.getAppointments() != null
-                //                 ? entity.getAppointments().stream()
-                //                         .map(AppointmentMapper::toDomain)
-                //                         .toList()
-                //                 : null);
     }
 
     public static DoctorEntity toEntity(Doctor doctor) {
@@ -31,12 +25,6 @@ public class DoctorMapper {
         entity.setFullName(doctor.getFullName());
         entity.setSpecialty(doctor.getSpecialty());
         entity.setUser(UserMapper.toEntity(doctor.getUser()));
-        // entity.setAppointments(
-        //         doctor.getAppointments() != null
-        //                 ? doctor.getAppointments().stream()
-        //                         .map(AppointmentMapper::toEntity)
-        //                         .toList()
-        //                 : null);
         return entity;
     }
 }

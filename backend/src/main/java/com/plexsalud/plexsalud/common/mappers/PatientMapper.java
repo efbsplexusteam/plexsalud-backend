@@ -13,12 +13,6 @@ public class PatientMapper {
                 .setUuid(entity.getUuid())
                 .setFullName(entity.getFullName())
                 .setUser(UserMapper.toDomain(entity.getUser()));
-                // .setAppointments(
-                //         entity.getAppointments() != null
-                //                 ? entity.getAppointments().stream()
-                //                         .map(AppointmentMapper::toDomain)
-                //                         .toList()
-                //                 : null);
     }
 
     public static PatientEntity toEntity(Patient patient) {
@@ -29,12 +23,6 @@ public class PatientMapper {
         entity.setUuid(patient.getUuid());
         entity.setFullName(patient.getFullName());
         entity.setUser(UserMapper.toEntity(patient.getUser()));
-        // entity.setAppointments(
-        //         patient.getAppointments() != null
-        //                 ? patient.getAppointments().stream()
-        //                         .map(AppointmentMapper::toEntity)
-        //                         .toList()
-        //                 : null);
         return entity;
     }
 }
