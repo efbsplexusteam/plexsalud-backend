@@ -2,6 +2,7 @@ package com.plexsalud.plexsalud.doctor.infrastructure.controllers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.plexsalud.plexsalud.auth.services.JwtService;
+import com.plexsalud.plexsalud.auth.application.ports.in.ExtractRoleUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.ExtractUuidUseCase;
 import com.plexsalud.plexsalud.doctor.application.dtos.DoctorDto;
 import com.plexsalud.plexsalud.doctor.application.dtos.DoctorFullNameAndUuidDto;
+import com.plexsalud.plexsalud.doctor.application.ports.in.CreateDoctorUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetAllDoctorsBySpecialtyUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetAllSpecialtiesUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUserUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUuidUseCase;
 import com.plexsalud.plexsalud.doctor.application.reponses.DoctorResponse;
-import com.plexsalud.plexsalud.doctor.application.services.DoctorService;
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.doctor.domain.models.Doctor;
+import com.plexsalud.plexsalud.user.application.ports.in.GetUserByUuidUseCase;
+import com.plexsalud.plexsalud.user.domain.models.Role;
+import com.plexsalud.plexsalud.user.domain.models.User;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,56 +38,77 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1/doctor")
 @RestController
 public class DoctorController {
-    private final DoctorService doctorService;
-    private final JwtService jwtService;
 
-    public DoctorController(DoctorService doctorService, JwtService jwtService) {
-        this.doctorService = doctorService;
-        this.jwtService = jwtService;
+    private final GetUserByUuidUseCase getUserByUuidUseCase;
+    private final CreateDoctorUseCase createDoctorUseCase;
+    private final GetAllDoctorsBySpecialtyUseCase getAllDoctorsBySpecialtyUseCase;
+    private final GetAllSpecialtiesUseCase getAllSpecialtiesUseCase;
+    private final GetDoctorByUserUseCase getDoctorByUserUseCase;
+    private final GetDoctorByUuidUseCase getDoctorByUuidUseCase;
+    private final ExtractUuidUseCase extractUuidUseCase;
+    private final ExtractRoleUseCase extractRoleUseCase;
+
+    public DoctorController(
+
+            ExtractUuidUseCase extractUuidUseCase,
+            ExtractRoleUseCase extractRoleUseCase,
+            GetUserByUuidUseCase getUserByUuidUseCase,
+            CreateDoctorUseCase createDoctorUseCase,
+            GetAllDoctorsBySpecialtyUseCase getAllDoctorsBySpecialtyUseCase,
+            GetAllSpecialtiesUseCase getAllSpecialtiesUseCase,
+            GetDoctorByUserUseCase getDoctorByUserUseCase,
+            GetDoctorByUuidUseCase getDoctorByUuidUseCase) {
+        this.getUserByUuidUseCase = getUserByUuidUseCase;
+        this.createDoctorUseCase = createDoctorUseCase;
+        this.getAllDoctorsBySpecialtyUseCase = getAllDoctorsBySpecialtyUseCase;
+        this.getAllSpecialtiesUseCase = getAllSpecialtiesUseCase;
+        this.getDoctorByUserUseCase = getDoctorByUserUseCase;
+        this.getDoctorByUuidUseCase = getDoctorByUuidUseCase;
+        this.extractUuidUseCase = extractUuidUseCase;
+        this.extractRoleUseCase = extractRoleUseCase;
     }
 
     @PostMapping
     public ResponseEntity<DoctorResponse> saveDoctor(HttpServletRequest request,
             @RequestBody DoctorDto doctorDto) {
-        UUID uuid = jwtService.extractUuid(request);
-        Role role = jwtService.extractRole(request);
+        UUID uuid = extractUuidUseCase.extractUuid(request);
+        Role role = extractRoleUseCase.extractRole(request);
 
         if (role != Role.DOCTOR) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role Invalid");
         }
 
-        doctorDto.setUserUuid(uuid);
-        DoctorResponse saved = doctorService.save(doctorDto);
-        return ResponseEntity.ok(saved);
+        User user = getUserByUuidUseCase.getOne(uuid);
+
+        Doctor doctor = new Doctor().setUser(user).setFullName(doctorDto.getFullName())
+                .setSpecialty(doctorDto.getSpecialty());
+
+        Doctor doctorSaved = createDoctorUseCase.save(doctor);
+        return ResponseEntity.ok(new DoctorResponse(doctorSaved.getFullName(), doctorSaved.getSpecialty()));
     }
 
     @GetMapping("self")
     public ResponseEntity<DoctorResponse> findSelf(HttpServletRequest request) {
-        UUID uuid = jwtService.extractUuid(request);
-
-        DoctorResponse doctorResponse = doctorService.findOneByUser(uuid);
-
-        return ResponseEntity.ok(doctorResponse);
+        UUID uuid = extractUuidUseCase.extractUuid(request);
+        Doctor doctor = getDoctorByUserUseCase.getDoctor(new User().setUuid(uuid));
+        return ResponseEntity.ok(new DoctorResponse(doctor.getFullName(), doctor.getSpecialty()));
     }
 
     @GetMapping("uuid")
     public ResponseEntity<DoctorResponse> findOne(@RequestParam("uuid") UUID uuid) {
-        DoctorResponse doctorResponse = doctorService.findOne(uuid);
-
-        return ResponseEntity.ok(doctorResponse);
+        Doctor doctor = getDoctorByUuidUseCase.getOneByUuid(uuid);
+        return ResponseEntity.ok(new DoctorResponse(doctor.getFullName(), doctor.getSpecialty()));
     }
 
     @GetMapping("specialties")
     public List<String> findAllSpecialties() {
-        List<String> specialties = doctorService.findAllSpecialties();
-
-        return specialties;
+        return getAllSpecialtiesUseCase.getSpecialties();
     }
 
     @GetMapping("doctors-by-specialty")
     public List<DoctorFullNameAndUuidDto> findAllSpecialties(@RequestParam("specialty") String specialty) {
-        List<DoctorFullNameAndUuidDto> doctors = doctorService.findAllDoctorsBySpecialty(specialty.toLowerCase());
-        return doctors;
+        return getAllDoctorsBySpecialtyUseCase.getDoctors(specialty.toLowerCase()).stream()
+                .map(d -> new DoctorFullNameAndUuidDto(d.getFullName(), d.getUuid())).collect(Collectors.toList());
     }
 
 }
