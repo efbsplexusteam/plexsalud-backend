@@ -1,4 +1,4 @@
-package com.plexsalud.plexsalud.nurse.domain.entities;
+package com.plexsalud.plexsalud.nurse.infrastructure.persistance.entities;
 
 import java.util.Date;
 import java.util.UUID;
@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.plexsalud.plexsalud.user.domain.entities.User;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +21,7 @@ import lombok.Data;
 @Table(name = "nurses")
 @Entity
 @Data
-public class Nurse {
+public class NurseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable = false)
@@ -32,7 +32,7 @@ public class Nurse {
 
     @OneToOne
     @JoinColumn(name = "user_uuid")
-    private User user;
+    private UserEntity user;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

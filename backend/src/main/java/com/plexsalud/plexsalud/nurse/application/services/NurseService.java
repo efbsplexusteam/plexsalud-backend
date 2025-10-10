@@ -4,28 +4,28 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.user.domain.entities.User;
-import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
+import com.plexsalud.plexsalud.user.infrastructure.persistance.repositories.UserEntityRepository;
 import com.plexsalud.plexsalud.nurse.application.dtos.NurseDto;
 import com.plexsalud.plexsalud.nurse.application.responses.NurseResponse;
-import com.plexsalud.plexsalud.nurse.domain.entities.Nurse;
 import com.plexsalud.plexsalud.nurse.domain.exceptions.NurseNotFoundException;
-import com.plexsalud.plexsalud.nurse.infrastructure.repositories.NurseRepository;
+import com.plexsalud.plexsalud.nurse.infrastructure.persistance.entities.NurseEntity;
+import com.plexsalud.plexsalud.nurse.infrastructure.persistance.repositories.NurseEntityRepository;
 
 @Service
 public class NurseService {
-    private final NurseRepository nurseRepository;
-    private final UserRepository userRepository;
+    private final NurseEntityRepository nurseRepository;
+    private final UserEntityRepository userRepository;
 
-    public NurseService(NurseRepository nurseRepository, UserRepository userRepository) {
+    public NurseService(NurseEntityRepository nurseRepository, UserEntityRepository userRepository) {
         this.nurseRepository = nurseRepository;
         this.userRepository = userRepository;
     }
 
     public NurseResponse save(NurseDto nurseDto) {
-        Nurse nurse = new Nurse();
+        NurseEntity nurse = new NurseEntity();
 
-        User user = userRepository.findById(nurseDto.getUserUuid())
+        UserEntity user = userRepository.findById(nurseDto.getUserUuid())
                 .orElseThrow(() -> new RuntimeException("Nurse not found with uuid: " + nurseDto.getUserUuid()));
 
         nurse.setFullName(nurseDto.getFullName());
@@ -38,7 +38,7 @@ public class NurseService {
     }
 
     public NurseResponse findOne(UUID uuid) {
-        Nurse nurse = nurseRepository.findById(uuid)
+        NurseEntity nurse = nurseRepository.findById(uuid)
                 .orElseThrow(() -> new NurseNotFoundException(
                         "Nurse not found with uuid: " + uuid));
 
@@ -46,7 +46,7 @@ public class NurseService {
     }
 
     public NurseResponse findOneByUser(UUID uuid) {
-        Nurse nurse = nurseRepository.findByUser(new User().setUuid(uuid))
+        NurseEntity nurse = nurseRepository.findByUser(new UserEntity().setUuid(uuid))
                 .orElseThrow(() -> new NurseNotFoundException(
                         "Nurse not found with uuid: " + uuid));
 
