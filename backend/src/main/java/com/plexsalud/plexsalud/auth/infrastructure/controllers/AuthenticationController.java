@@ -3,7 +3,6 @@ package com.plexsalud.plexsalud.auth.infrastructure.controllers;
 import jakarta.servlet.http.Cookie;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -25,7 +24,6 @@ import com.plexsalud.plexsalud.auth.infrastructure.responses.LoginResponse;
 import com.plexsalud.plexsalud.auth.infrastructure.responses.RegisterResponse;
 import com.plexsalud.plexsalud.user.domain.models.Role;
 import com.plexsalud.plexsalud.user.domain.models.User;
-import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,22 +54,22 @@ public class AuthenticationController {
 
     @PostMapping("signup")
     public RegisterResponse register(@RequestBody RegisterUserDto registerUserDto) {
-        User user = new User(new UUID(0, 0), registerUserDto.getEmail(), registerUserDto.getPassword(),
-                registerUserDto.getRole());
+        User user = new User().setEmail(registerUserDto.getEmail()).setPassword(registerUserDto.getPassword())
+                .setRole(registerUserDto.getRole());
 
         User userSaved = signupUserUseCase.signup(user);
 
-        return new RegisterResponse(userSaved.role());
+        return new RegisterResponse(userSaved.getRole());
     }
 
     @PostMapping("login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User user = new User(new UUID(0, 0), loginUserDto.getEmail(), loginUserDto.getPassword(),
-                loginUserDto.getRole());
+        User user = new User().setEmail(loginUserDto.getEmail()).setPassword(loginUserDto.getPassword())
+                .setRole(loginUserDto.getRole());
 
         User authenticatedUser = authenticateUserUseCase.authenticate(user);
         // UserEntity authenticatedUser =
-        Role role = authenticatedUser.role();
+        Role role = authenticatedUser.getRole();
 
         String jwtToken = generateTokenUseCase.generateTokenUseCase(authenticatedUser);
 

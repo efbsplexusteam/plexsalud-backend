@@ -10,8 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.plexsalud.plexsalud.user.application.ports.UserRepositoryPort;
-import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
+import com.plexsalud.plexsalud.common.mappers.UserMapper;
+import com.plexsalud.plexsalud.user.application.ports.out.UserRepositoryPort;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -20,12 +20,12 @@ public class ApplicationConfiguration {
 
     public ApplicationConfiguration(UserRepositoryPort userRepositoryPort) {
         this.userRepositoryPort = userRepositoryPort;
+
     }
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepositoryPort.findByEmail(username).map(
-                u -> new UserEntity().setUuid(u.uuid()).setEmail(u.email()).setPassword(u.password()).setRole(u.role()))
+        return username -> userRepositoryPort.findByEmail(username).map(u -> UserMapper.toEntity(u))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

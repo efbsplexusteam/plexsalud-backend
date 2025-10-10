@@ -23,6 +23,7 @@ import com.plexsalud.plexsalud.auth.application.ports.in.ExtractUuidUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateNewAccessToken;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateRefreshTokenUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.GenerateTokenUseCase;
+import com.plexsalud.plexsalud.common.mappers.UserMapper;
 import com.plexsalud.plexsalud.user.domain.models.Role;
 import com.plexsalud.plexsalud.user.domain.models.User;
 import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
@@ -42,21 +43,11 @@ public class JwtService
     private long jwtRefreshExpiration;
 
     public String generateTokenUseCase(User user) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUuid(user.uuid());
-        userEntity.setEmail(user.email());
-        userEntity.setPassword(user.password());
-        userEntity.setRole(user.role());
-        return generateToken(userEntity);
+        return generateToken(UserMapper.toEntity(user));
     }
 
     public String generateRefreshTokenUseCase(User user) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUuid(user.uuid());
-        userEntity.setEmail(user.email());
-        userEntity.setPassword(user.password());
-        userEntity.setRole(user.role());
-        return generateRefreshToken(userEntity);
+        return generateRefreshToken(UserMapper.toEntity(user));
     }
 
     public String extractUsername(String token) {

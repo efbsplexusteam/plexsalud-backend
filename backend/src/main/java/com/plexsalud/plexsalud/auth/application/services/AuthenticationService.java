@@ -7,44 +7,38 @@ import org.springframework.stereotype.Service;
 
 import com.plexsalud.plexsalud.auth.application.ports.in.AuthenticateUserUseCase;
 import com.plexsalud.plexsalud.auth.application.ports.in.SignupUserUseCase;
+import com.plexsalud.plexsalud.user.application.ports.out.UserRepositoryPort;
 import com.plexsalud.plexsalud.user.domain.models.User;
-import com.plexsalud.plexsalud.user.infrastructure.persistance.entities.UserEntity;
-import com.plexsalud.plexsalud.user.infrastructure.persistance.repositories.UserEntityRepository;
 
 @Service
 public class AuthenticationService implements SignupUserUseCase, AuthenticateUserUseCase {
-    private final UserEntityRepository userRepository;
+    private final UserRepositoryPort userRepositoryPort;
 
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationService(
-            UserEntityRepository userRepository,
             AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+
+            UserRepositoryPort userRepositoryPort) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userRepositoryPort = userRepositoryPort;
     }
 
     public User signup(User user) {
-        UserEntity userEntity = new UserEntity()
-                .setRole(user.role())
-                .setEmail(user.email())
-                .setPassword(passwordEncoder.encode(user.password()));
-        UserEntity userSaved = userRepository.save(userEntity);
-        return new User(userSaved.getUuid(), userSaved.getUsername(), userSaved.getPassword(), userSaved.getRole());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepositoryPort.save(user);
     }
 
     public User authenticate(User user) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        user.email(),
-                        user.password()));
+                        user.getEmail(),
+                        user.getPassword()));
 
-        return userRepository.findByEmailAndRole(user.email(), user.role())
-                .map(u -> new User(u.getUuid(), u.getUsername(), u.getPassword(), u.getRole()))
-                .orElseThrow();
+        return userRepositoryPort.findByEmailAndRole(user.getEmail(), user.getRole()).orElseThrow();
     }
 }
