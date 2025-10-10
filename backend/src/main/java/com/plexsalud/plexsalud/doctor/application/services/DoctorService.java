@@ -5,78 +5,44 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.plexsalud.plexsalud.doctor.application.dtos.DoctorDto;
-import com.plexsalud.plexsalud.doctor.application.dtos.DoctorFullNameAndUuidDto;
-import com.plexsalud.plexsalud.doctor.application.reponses.DoctorResponse;
-import com.plexsalud.plexsalud.doctor.domain.entities.Doctor;
-import com.plexsalud.plexsalud.doctor.domain.exceptions.DoctorNotFoundException;
-import com.plexsalud.plexsalud.doctor.infrastructure.repositories.DoctorRepository;
-import com.plexsalud.plexsalud.user.domain.entities.User;
-import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
+import com.plexsalud.plexsalud.doctor.application.ports.in.CreateDoctorUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetAllDoctorsBySpecialtyUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetAllSpecialtiesUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUserUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUuidUseCase;
+import com.plexsalud.plexsalud.doctor.application.ports.out.DoctorRepositoryPort;
+import com.plexsalud.plexsalud.doctor.domain.models.Doctor;
+import com.plexsalud.plexsalud.user.domain.models.User;
 
 @Service
-public class DoctorService {
-    private final DoctorRepository doctorRepository;
-    private final UserRepository userRepository;
+public class DoctorService implements CreateDoctorUseCase, GetAllDoctorsBySpecialtyUseCase, GetAllSpecialtiesUseCase,
+        GetDoctorByUserUseCase, GetDoctorByUuidUseCase {
 
-    public DoctorService(DoctorRepository doctorRepository, UserRepository userRepository) {
-        this.doctorRepository = doctorRepository;
-        this.userRepository = userRepository;
+    private final DoctorRepositoryPort doctorRepositoryPort;
+
+    public DoctorService(
+            DoctorRepositoryPort doctorRepositoryPort) {
+
+        this.doctorRepositoryPort = doctorRepositoryPort;
     }
 
-    public DoctorResponse save(DoctorDto doctorDto) {
-        Doctor doctor = new Doctor();
-
-        User user = userRepository.findById(doctorDto.getUserUuid())
-                .orElseThrow(() -> new RuntimeException("User not found with uuid: " + doctorDto.getUserUuid()));
-
-        doctor.setFullName(doctorDto.getFullName());
-        doctor.setSpecialty(doctorDto.getSpecialty());
-        doctor.setUser(user);
-
-        doctor = doctorRepository.save(doctor);
-        DoctorResponse doctorResponse = new DoctorResponse(doctor.getFullName(), doctor.getSpecialty());
-
-        return doctorResponse;
+    public Doctor save(Doctor doctor) {
+        return doctorRepositoryPort.save(doctor);
     }
 
-    public DoctorResponse findOne(UUID uuid) {
-        Doctor doctor = doctorRepository.findById(uuid)
-                .orElseThrow(() -> new DoctorNotFoundException(
-                        "Doctor not found with uuid: " + uuid));
-
-        return new DoctorResponse(doctor.getFullName(), doctor.getSpecialty());
+    public List<Doctor> getDoctors(String specialty) {
+        return doctorRepositoryPort.findAllDoctorsBySpecialty(specialty);
     }
 
-    public Doctor findOneRaw(UUID uuid) {
-        return doctorRepository.findById(uuid)
-                .orElseThrow(() -> new DoctorNotFoundException(
-                        "Doctor not found with uuid: " + uuid));
+    public List<String> getSpecialties() {
+        return doctorRepositoryPort.findDistinctSpecialty();
     }
 
-    public Doctor findOneRawByUser(UUID uuid) {
-        return doctorRepository.findByUser(new User().setUuid(uuid))
-                .orElseThrow(() -> new DoctorNotFoundException(
-                        "Doctor not found with user_uuid: " + uuid));
+    public Doctor getDoctor(User user) {
+        return doctorRepositoryPort.findByUser(user);
     }
 
-    public DoctorResponse findOneByUser(UUID uuid) {
-        Doctor doctor = doctorRepository.findByUser(new User().setUuid(uuid))
-                .orElseThrow(() -> new DoctorNotFoundException(
-                        "Doctor not found with uuid: " + uuid));
-
-        return new DoctorResponse(doctor.getFullName(), doctor.getSpecialty());
-    }
-
-    public List<String> findAllSpecialties() {
-        List<String> specialties = doctorRepository.findDistinctSpecialty();
-
-        return specialties;
-    }
-
-    public List<DoctorFullNameAndUuidDto> findAllDoctorsBySpecialty(String specialty) {
-        List<DoctorFullNameAndUuidDto> doctors = doctorRepository.findAllDoctorsBySpecialty(specialty);
-
-        return doctors;
+    public Doctor getOneByUuid(UUID uuid) {
+        return doctorRepositoryPort.findById(uuid);
     }
 }

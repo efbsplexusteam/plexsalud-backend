@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.plexsalud.plexsalud.auth.services.JwtService;
+import com.plexsalud.plexsalud.auth.application.services.JwtService;
 import com.plexsalud.plexsalud.nurse.application.dtos.NurseDto;
 import com.plexsalud.plexsalud.nurse.application.responses.NurseResponse;
 import com.plexsalud.plexsalud.nurse.application.services.NurseService;
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.user.domain.models.Role;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

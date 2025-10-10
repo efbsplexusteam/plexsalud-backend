@@ -12,11 +12,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.plexsalud.plexsalud.auth.services.JwtService;
+import com.plexsalud.plexsalud.auth.application.ports.in.ExtractRoleUseCase;
+import com.plexsalud.plexsalud.auth.application.ports.in.ExtractUuidUseCase;
 import com.plexsalud.plexsalud.patient.application.dtos.PatientDto;
+import com.plexsalud.plexsalud.patient.application.ports.in.CreatePatientUseCase;
+import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUserUseCase;
+import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUuidUseCase;
 import com.plexsalud.plexsalud.patient.application.responses.PatientResponse;
-import com.plexsalud.plexsalud.patient.application.services.PatientService;
-import com.plexsalud.plexsalud.user.domain.entities.Role;
+import com.plexsalud.plexsalud.patient.domain.models.Patient;
+import com.plexsalud.plexsalud.user.application.ports.in.GetUserByUuidUseCase;
+import com.plexsalud.plexsalud.user.domain.models.Role;
+import com.plexsalud.plexsalud.user.domain.models.User;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,43 +34,60 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 public class PatientController {
 
-    private final PatientService patientService;
-    private final JwtService jwtService;
+    private final ExtractUuidUseCase extractUuidUseCase;
+    private final ExtractRoleUseCase extractRoleUseCase;
+    private final GetUserByUuidUseCase getUserByUuidUseCase;
+    private final CreatePatientUseCase createPatientUseCase;
+    private final GetPatientByUserUseCase getPatientByUserUseCase;
+    private final GetPatientByUuidUseCase getPatientByUuidUseCase;
 
-    public PatientController(PatientService patientService, JwtService jwtService) {
-        this.patientService = patientService;
-        this.jwtService = jwtService;
+    public PatientController(
+            ExtractUuidUseCase extractUuidUseCase,
+            ExtractRoleUseCase extractRoleUseCase,
+            GetUserByUuidUseCase getUserByUuidUseCase,
+            CreatePatientUseCase createPatientUseCase,
+            GetPatientByUserUseCase getPatientByUserUseCase,
+            GetPatientByUuidUseCase getPatientByUuidUseCase) {
+        this.extractUuidUseCase = extractUuidUseCase;
+        this.extractRoleUseCase = extractRoleUseCase;
+        this.getUserByUuidUseCase = getUserByUuidUseCase;
+        this.createPatientUseCase = createPatientUseCase;
+        this.getPatientByUserUseCase = getPatientByUserUseCase;
+        this.getPatientByUuidUseCase = getPatientByUuidUseCase;
     }
 
     @PostMapping
     public ResponseEntity<PatientResponse> savePatient(HttpServletRequest request,
             @RequestBody PatientDto patientDto) {
-        UUID uuid = jwtService.extractUuid(request);
-        Role role = jwtService.extractRole(request);
+        UUID uuid = extractUuidUseCase.extractUuid(request);
+        Role role = extractRoleUseCase.extractRole(request);
 
         if (role != Role.PATIENT) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role Invalid");
         }
 
-        patientDto.setUserUuid(uuid);
-        PatientResponse saved = patientService.save(patientDto);
-        return ResponseEntity.ok(saved);
+        User user = getUserByUuidUseCase.getOne(uuid);
+        Patient patient = new Patient().setUser(user).setFullName(patientDto.getFullName());
+        Patient patientSaved = createPatientUseCase.save(patient);
+        PatientResponse patientResponse = new PatientResponse(patientSaved.getFullName());
+        return ResponseEntity.ok(patientResponse);
     }
 
     @GetMapping("self")
     public ResponseEntity<PatientResponse> findSelf(HttpServletRequest request) {
-        UUID uuid = jwtService.extractUuid(request);
+        UUID uuid = extractUuidUseCase.extractUuid(request);
 
-        PatientResponse patientResponse = patientService.findOneByUser(uuid);
+        Patient patient = getPatientByUserUseCase.getByUser(new User().setUuid(uuid));
+
+        PatientResponse patientResponse = new PatientResponse(patient.getFullName());
 
         return ResponseEntity.ok(patientResponse);
     }
 
     @GetMapping("uuid")
     public PatientResponse findOne(@RequestParam("uuid") UUID uuid) {
-        PatientResponse patientResponse = patientService.findOne(uuid);
-
-        return patientResponse;
+        Patient patient = getPatientByUuidUseCase.getOne(uuid);
+        return new PatientResponse(patient.getFullName());
     }
 
 }

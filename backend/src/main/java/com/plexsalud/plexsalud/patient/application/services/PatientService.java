@@ -6,67 +6,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.plexsalud.plexsalud.patient.application.dtos.PatientDto;
-import com.plexsalud.plexsalud.patient.application.responses.PatientResponse;
-import com.plexsalud.plexsalud.patient.domain.entities.Patient;
-import com.plexsalud.plexsalud.patient.domain.exceptions.PatientNotFoundException;
-import com.plexsalud.plexsalud.patient.infrastructure.repositories.PatientRepository;
-import com.plexsalud.plexsalud.user.domain.entities.User;
-import com.plexsalud.plexsalud.user.infrastructure.repositories.UserRepository;
+import com.plexsalud.plexsalud.patient.application.ports.in.CreatePatientUseCase;
+import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUserUseCase;
+import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUuidUseCase;
+import com.plexsalud.plexsalud.patient.application.ports.out.PatientRepositoryPort;
+import com.plexsalud.plexsalud.patient.domain.models.Patient;
+import com.plexsalud.plexsalud.user.domain.models.User;
 
 @Service
-public class PatientService {
-    private final UserRepository userRepository;
-    private final PatientRepository patientRepository;
+public class PatientService implements CreatePatientUseCase, GetPatientByUuidUseCase, GetPatientByUserUseCase {
 
-    public PatientService(PatientRepository patientRepository, UserRepository userRepository) {
-        this.patientRepository = patientRepository;
-        this.userRepository = userRepository;
+    private final PatientRepositoryPort patientRepositoryPort;
+
+    public PatientService(PatientRepositoryPort patientRepositoryPort) {
+        this.patientRepositoryPort = patientRepositoryPort;
     }
 
-    public PatientResponse save(PatientDto patientDto) {
-        Patient patient = new Patient();
-
-        User user = userRepository.findById(patientDto.getUserUuid())
-                .orElseThrow(() -> new RuntimeException("Patient not found with uuid: " + patientDto.getUserUuid()));
-
-        patient.setFullName(patientDto.getFullName());
-        patient.setUser(user);
-
-        patient = patientRepository.save(patient);
-        PatientResponse PatientResponse = new PatientResponse(patient.getFullName());
-
-        return PatientResponse;
+    public Patient save(Patient patient) {
+        return patientRepositoryPort.save(patient);
     }
 
-    public PatientResponse findOne(UUID uuid) {
-        Patient patient = patientRepository.findById(uuid)
+    public Patient getByUser(User user) {
+        return patientRepositoryPort.findByUser(user)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Patient not found with uuid: " + uuid));
-
-        return new PatientResponse(patient.getFullName());
+                        "Patient not found with user_uuid: " + user.getUuid()));
     }
 
-    public Patient findOneRaw(UUID uuid) {
-        return patientRepository.findByUser(new User().setUuid(uuid))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Patient not found with uuid: " + uuid));
-    }
-
-    public Patient findOneRawByUser(UUID uuid) {
-        return patientRepository.findByUser(new User().setUuid(uuid))
+    public Patient getOne(UUID uuid) {
+        return patientRepositoryPort.findById(uuid)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Patient not found with user_uuid: " + uuid));
-    }
-
-    public PatientResponse findOneByUser(UUID uuid) {
-        Patient patient = patientRepository.findByUser(new User().setUuid(uuid))
-                .orElseThrow(() -> new PatientNotFoundException(
-                        "Patient not found with uuid: " + uuid));
-
-        // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        // "Patient not found with uuid: " + uuid));
-
-        return new PatientResponse(patient.getFullName());
     }
 }
