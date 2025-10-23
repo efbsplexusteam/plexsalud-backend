@@ -24,6 +24,7 @@ import com.plexsalud.plexsalud.doctor.application.ports.in.GetAllSpecialtiesUseC
 import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUserUseCase;
 import com.plexsalud.plexsalud.doctor.application.ports.in.GetDoctorByUuidUseCase;
 import com.plexsalud.plexsalud.doctor.application.reponses.DoctorResponse;
+import com.plexsalud.plexsalud.doctor.domain.exceptions.DoctorNotFoundException;
 import com.plexsalud.plexsalud.doctor.domain.models.Doctor;
 import com.plexsalud.plexsalud.user.application.ports.in.GetUserByUuidUseCase;
 import com.plexsalud.plexsalud.user.domain.models.Role;
@@ -91,6 +92,11 @@ public class DoctorController {
     public ResponseEntity<DoctorResponse> findSelf(HttpServletRequest request) {
         UUID uuid = extractUuidUseCase.extractUuid(request);
         Doctor doctor = getDoctorByUserUseCase.getDoctor(new User().setUuid(uuid));
+        
+        if (doctor == null) {
+            throw new DoctorNotFoundException("Doctor not found");
+        }
+        
         return ResponseEntity.ok(new DoctorResponse(doctor.getFullName(), doctor.getSpecialty()));
     }
 

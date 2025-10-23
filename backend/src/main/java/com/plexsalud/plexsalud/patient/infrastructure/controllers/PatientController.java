@@ -19,6 +19,7 @@ import com.plexsalud.plexsalud.patient.application.ports.in.CreatePatientUseCase
 import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUserUseCase;
 import com.plexsalud.plexsalud.patient.application.ports.in.GetPatientByUuidUseCase;
 import com.plexsalud.plexsalud.patient.application.responses.PatientResponse;
+import com.plexsalud.plexsalud.patient.domain.exceptions.PatientNotFoundException;
 import com.plexsalud.plexsalud.patient.domain.models.Patient;
 import com.plexsalud.plexsalud.user.application.ports.in.GetUserByUuidUseCase;
 import com.plexsalud.plexsalud.user.domain.models.Role;
@@ -78,6 +79,10 @@ public class PatientController {
         UUID uuid = extractUuidUseCase.extractUuid(request);
 
         Patient patient = getPatientByUserUseCase.getByUser(new User().setUuid(uuid));
+
+        if (patient == null) {
+            throw new PatientNotFoundException("Patient not found");
+        }
 
         PatientResponse patientResponse = new PatientResponse(patient.getFullName());
 
